@@ -1,0 +1,63 @@
+
+//+------------------------------------------------------------------+
+//|                                                     Sync Scroller |
+//|                                    Developed by Forex Robot Easy |
+//|                                                     forexroboteasy.com |
+//+------------------------------------------------------------------+
+
+// Define input parameters
+input int timeframe = PERIOD_H1; // Default timeframe
+input string symbols = 'EURUSD,GBPUSD,USDJPY'; // Default symbols
+
+// Define global variables
+int chartHandle; // Handle of the current chart
+string[] symbolArray; // Array to store the symbols
+int[] chartHandles; // Array to store the chart handles
+
+//+------------------------------------------------------------------+
+//|                      Expert initialization function                      |
+//+------------------------------------------------------------------+
+int OnInit()
+{
+   // Get the handle of the current chart
+   chartHandle = ChartID();
+
+   // Split the symbols string into an array
+   symbolArray = StringSplit(symbols, ',');
+
+   // Loop through all symbols
+   for(int i=0; i<ArraySize(symbolArray); i++)
+   {
+      // Open the corresponding chart and store the handle
+      int handle = ChartOpen(symbolArray[i], timeframe);
+      chartHandles[i] = handle;
+   }
+
+   return(INIT_SUCCEEDED);
+}
+
+//+------------------------------------------------------------------+
+//|                      Expert deinitialization function                    |
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason)
+{
+   // Close all opened charts
+   for(int i=0; i<ArraySize(chartHandles); i++)
+      ChartClose(chartHandles[i]);
+}
+
+//+------------------------------------------------------------------+
+//|                         Expert tick function                                |
+//+------------------------------------------------------------------+
+void OnTick()
+{
+   // Get the current chart position
+   int currentPosition = ChartGetInteger(chartHandle, CHART_FIRST_VISIBLE_BAR);
+
+   // Loop through all chart handles
+   for(int i=0; i<ArraySize(chartHandles); i++)
+   {
+      // Set the same position for all charts
+      ChartSetInteger(chartHandles[i], CHART_FIRST_VISIBLE_BAR, currentPosition);
+   }
+}
